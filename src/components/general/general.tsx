@@ -1,11 +1,9 @@
-export default function General() {
+'use client'
+
+export default function General({data}: {data: {message: string, }}) {
   return (
     <div>
-        <h1>datos generales</h1>
-        <p>
-            Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam,
-            voluptas.
-        </p>
+        <h1>{data.message}</h1>
 
     </div>
   )
