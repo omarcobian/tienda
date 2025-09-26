@@ -1,6 +1,6 @@
 
 import "./globals.css";
-
+import { AuthProvider } from "@hooks/useAuth";
 
 export default function RootLayout({
   children,
@@ -11,10 +11,7 @@ export default function RootLayout({
     <html lang="en">
       <body
       >
-        {children}
-        <footer>
-          <p>Copyright 2025</p>
-        </footer>
+        <AuthProvider>{children}</AuthProvider>
       </body>
     </html>
   );
