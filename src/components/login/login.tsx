@@ -25,7 +25,7 @@ export default function Login() {
     //llama a la api del login
     try {
       //fetch a la api del login
-      const success = await fetch("/api/auth", {
+      const success = await fetch("/api/admin", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
