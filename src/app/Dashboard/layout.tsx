@@ -1,3 +1,4 @@
+// Es un componente que siempre estara presente en todas las rutas de el dashboard
 import MenuCard from "@/components/ui/MenuCard";
 import Navbar from "@/components/ui/Navbar";
 

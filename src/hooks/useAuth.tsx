@@ -1,3 +1,4 @@
+//Es el estado global del usuario se ejecuta en el cliente
 "use client"
 
 import { createContext, useContext, useState, useEffect, type ReactNode } from "react"
