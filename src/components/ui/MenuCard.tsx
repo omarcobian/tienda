@@ -20,10 +20,10 @@ export default function MenuCard({ title, icon, active }: MenuCardProps) {
   const Icon = icons[icon];
   return (
     <div
-      className={`flex flex-col items-center justify-center border rounded-xl p-6 cursor-pointer 
-      ${active ? "border-blue-500 text-blue-600 shadow-md" : "hover:bg-gray-50"}`}
+      className={`flex flex-col items-center justify-center rounded-xl p-6 cursor-pointer 
+      ${active ? "border-blue-500 text-blue-600 bg-blue-300/35 shadow-md border" : "hover:bg-gray-100 bg-neutral-50 shadow-sm shadow-gray-500"}  `}
     >
-      <Icon size={32} />
+      <Icon size={32} className=" text-blue-600"/>
       <p className="mt-2 font-medium">{title}</p>
     </div>
   );

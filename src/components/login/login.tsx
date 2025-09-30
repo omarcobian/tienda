@@ -3,6 +3,9 @@
 //importaciones de hooks y estado
 import { useState } from "react"
 import { useAuth } from "@hooks/useAuth";
+import { redirect } from "next/navigation";
+
+
 
 export default function Login() {
   //estado para manejar la api y formularios
@@ -50,12 +53,8 @@ export default function Login() {
   }
   //si el usuario esta autenticado redirige a la pagina de productos
   if (user) {
-    return(
-      <div>
-        <h1>listo</h1>
-        <button onClick={logout}>Cerrar sesión</button>
-      </div>
-    )
+    //redirige a la pagina dashboard/admin
+    return user.role === "admin" ? redirect("/dashboard/admin") : redirect("/dashboard/user")
   }
 
   
