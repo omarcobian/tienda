@@ -1,9 +1,13 @@
 //importamos primsa desde /lib
 import prisma from '@/lib/prisma'
+//Hacemos un endpoint para iniciar sesion checando si el usuario ya existe en la base de datos
+//Utilizando el metodo POST que recibe un request
+//y extraemos el email y password del body
+//Luego usamos prisma para buscar un usuario con roll ADMIN o USER
+//Finalmente retornamos un mensaje de exito o error en formato JSON
 
-//Hacemos un post para saber si el usuario existe
-export async function POST(req: Request){
-  const {email, password} = await req.json()
+export async function POST(req: Request){//tiene que ser una funcion asincrona porque vamos a hacer operaciones con la base de datos
+  const {email, password} = await req.json()//declaramos una constante que extrae el email y password del body del request
   var user = await prisma.user.findUnique({
     where: { email: email, password: password, roll: "ADMIN"}//Buscamos el usuario con roll admin
   })
