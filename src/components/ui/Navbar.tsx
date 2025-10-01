@@ -1,7 +1,9 @@
 'use client'
 //importaciones de hooks y estado
 import { useAuth } from "@hooks/useAuth";
-export default function Navbar() {
+ export default function Navbar() {
+//   const router = useRouter()
+//   const { pathname } = router
   const {  logout } = useAuth()
   return (
     <nav className="flex justify-between items-center bg-white shadow-neutral-950 border-b border-b-gray-500/40 px-6 py-4">

@@ -8,7 +8,7 @@ import prisma from '@/lib/prisma'
 
 export async function POST(req: Request){//tiene que ser una funcion asincrona porque vamos a hacer operaciones con la base de datos
   const {email, password} = await req.json()//declaramos una constante que extrae el email y password del body del request
-  var user = await prisma.user.findUnique({
+  let user = await prisma.user.findUnique({
     where: { email: email, password: password, roll: "ADMIN"}//Buscamos el usuario con roll admin
   })
   if(user){return Response.json({message: "Inicio de sesión exitoso" }, { status: 200 })}//Si existe y es admiin enviamos estatus 200

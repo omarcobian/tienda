@@ -22,6 +22,20 @@ model User {
   password  String
 }
 
+model Product {
+  id        String  @id @default(auto()) @map("_id") @db.ObjectId
+  name      String
+  status    Status  @default(Activo)
+  category  String
+  price     Float
+  date      String
+}
+
+enum Status {
+  Activo
+  Inactivo
+}
+
 enum Roll {
   USER
   ADMIN

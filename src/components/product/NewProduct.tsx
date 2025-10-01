@@ -1,10 +1,11 @@
 "use client"
+import { product } from "@/types"
 import React, { useState } from "react"
 
 interface NewProductModalProps {
   isOpen: boolean
   onClose: () => void
-  onSave: (product: any) => void
+  onSave: (product: product) => void
 }
 
 export function NewProductModal({ isOpen, onClose, onSave }: NewProductModalProps) {
@@ -22,9 +23,7 @@ export function NewProductModal({ isOpen, onClose, onSave }: NewProductModalProp
       name,
       category,
       price,
-      status,
-      createdBy: "Administrador",
-      date: new Date().toLocaleDateString(),
+      status
     }
 
     onSave(newProduct) // envia el producto al padre

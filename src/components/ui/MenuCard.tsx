@@ -1,13 +1,11 @@
 
 import { ShoppingCart, DollarSign, Package, BarChart2, Users } from "lucide-react";
-
 // Props para reusar el componente en el menú
 interface MenuCardProps {
   title: string;
   icon: "venta" | "gasto" | "producto" | "reporte" | "usuario";
   active?: boolean;
 }
-
 const icons = {
   venta: ShoppingCart,
   gasto: DollarSign,
