@@ -26,7 +26,7 @@ export function NewProductModal({ isOpen, onClose, onSave }: NewProductModalProp
       status
     }
 
-    onSave(newProduct) // envia el producto al padre
+    onSave(newProduct as product) // envia el producto al padre
     onClose() // cierra el modal
     setName("")
     setCategory("")

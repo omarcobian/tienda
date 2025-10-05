@@ -23,11 +23,11 @@ export  default function ProductPage() {
 
   const handleAddProduct = (newProduct: product) => {
     //desestructuramos el objeto para agregar la fecha
-    const { name, category, price, status } = newProduct
+    const { name, category, price, status, date } = newProduct
     //agregar con un post a su api
     fetch("/api/product", {
       method: "POST",
-      body: JSON.stringify({ name, category, price , status }),
+      body: JSON.stringify({ name, category, price , status, date}),
     })
     //verificamos algun error en la respuesta
     .then((res) => {

@@ -1,17 +1,15 @@
 "use client"
 import React from "react"
 import { ProductCard } from "./ProductCard"
+import { product } from "@/types"
 
-export function ProductList({ products }: { products: any[] }) {
+export function ProductList({ products }: { products: product[] }) {
   return (
     <div className="space-y-4">
       {products.map((product, i) => (
         <ProductCard
           key={i}
           {...product}
-          onEdit={() => console.log("Editar", product.name)}
-          onDelete={() => console.log("Eliminar", product.name)}
-          onToggle={() => console.log("Toggle", product.name)}
         />
       ))}
     </div>
