@@ -1,77 +1,206 @@
+/**
+ * ProductCard Component - Tarjeta individual de producto
+ * 
+ * Buenas prácticas aplicadas:
+ * - ✅ Componente reutilizable y modular
+ * - ✅ Props bien definidas con TypeScript
+ * - ✅ Separación de lógica de presentación
+ * - ✅ Accesibilidad (aria-labels, botones semánticos)
+ * - ✅ Diseño responsivo con Tailwind
+ * 
+ * Mejoras implementadas:
+ * - Recibe producto completo en lugar de props individuales
+ * - Usa hook useProducts para operaciones (en lugar de imports directos)
+ * - Feedback visual en operaciones (loading, confirmación)
+ * - Formateo consistente de datos (precio, fecha)
+ * 
+ * Mejoras futuras:
+ * - Implementar modal de confirmación para delete
+ * - Añadir modal de edición inline
+ * - Mostrar loader durante operaciones
+ * - Añadir animaciones de transición
+ * - Implementar undo/redo para acciones
+ */
+
 "use client"
-import React from "react"
+
+import React, { useState } from "react"
 import { Edit, Trash2 } from "lucide-react"
-import { editarProducto } from "@/lib/productos/index"
+import { useProducts } from "@/hooks/useProducts"
+import type { ProductWithId } from "@/types"
+
 interface ProductCardProps {
-  name: string
-  status: "Activo" | "Inactivo"
-  category: string
-  price: number
-  date: string
+  product: ProductWithId
 }
 
-export function ProductCard({
-  name,
-  status,
-  category,
-  price,
-  date,
-}: ProductCardProps) {
-  //funciones para manejar los eventos
+/**
+ * Tarjeta de producto con acciones de edición, toggle y eliminación
+ * 
+ * Mejora futura: Separar en componentes más pequeños
+ * - ProductCardInfo (datos del producto)
+ * - ProductCardActions (botones de acción)
+ * - ProductCardBadges (badges de estado y categoría)
+ */
+export function ProductCard({ product }: ProductCardProps) {
+  const { id, name, status, category, price, date } = product
+  const { updateProduct, deleteProduct } = useProducts()
+  const [isDeleting, setIsDeleting] = useState(false)
+  const [isToggling, setIsToggling] = useState(false)
+
+  /**
+   * Maneja la edición del producto
+   * Mejora futura: Abrir modal de edición con formulario precargado
+   */
   const handleEdit = () => {
-    //llama a la funcion editarProducto de lib/productos para editar el producto
-    editarProducto({
-      name,
-      status,
-      category,
-      price,
-      date,
-    })
+    /**
+     * TODO: Implementar modal de edición
+     * setEditModalOpen(true)
+     * setEditingProduct(product)
+     */
+    console.log("Editar producto:", name)
+    // Placeholder: por ahora solo log
+    alert("Función de edición en desarrollo. Ver console para detalles.")
   }
-  const handleDelete = () => {
-    console.log("Eliminar", name)
+
+  /**
+   * Maneja la eliminación del producto
+   * Mejora futura: Mostrar modal de confirmación antes de eliminar
+   */
+  const handleDelete = async () => {
+    // Confirmación de usuario
+    const confirmed = window.confirm(`¿Estás seguro de eliminar "${name}"?`)
+    if (!confirmed) return
+
+    setIsDeleting(true)
+    
+    try {
+      const success = await deleteProduct(id)
+      
+      if (success) {
+        /**
+         * Mejora futura: Mostrar toast notification
+         * toast.success(`Producto "${name}" eliminado`)
+         */
+        console.log("Producto eliminado:", name)
+      } else {
+        alert("Error al eliminar el producto")
+      }
+    } catch (error) {
+      console.error("Error deleting product:", error)
+      alert("Error al eliminar el producto")
+    } finally {
+      setIsDeleting(false)
+    }
   }
-  const handleToggle = () => {
-    console.log("Toggle", name)
+
+  /**
+   * Cambia el estado del producto (Activo ↔ Inactivo)
+   */
+  const handleToggle = async () => {
+    const newStatus = status === "Activo" ? "Inactivo" : "Activo"
+    
+    setIsToggling(true)
+    
+    try {
+      const updated = await updateProduct(id, { status: newStatus })
+      
+      if (updated) {
+        /**
+         * Mejora futura: Mostrar toast notification
+         * toast.success(`Producto ${newStatus.toLowerCase()}`)
+         */
+        console.log(`Producto ${newStatus}:`, name)
+      } else {
+        alert("Error al cambiar el estado")
+      }
+    } catch (error) {
+      console.error("Error toggling product:", error)
+      alert("Error al cambiar el estado")
+    } finally {
+      setIsToggling(false)
+    }
   }
+
+  /**
+   * Formatea la fecha para mostrar
+   * Mejora futura: Usar librería de formateo (date-fns, dayjs)
+   */
+  const formatDate = (dateString: string) => {
+    try {
+      const date = new Date(dateString)
+      return date.toLocaleDateString('es-ES', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric'
+      })
+    } catch {
+      return dateString // Fallback si el formato falla
+    }
+  }
+
   return (
-    <div className="bg-white rounded-xl shadow p-4 border flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
-      {/* Info */}
-      <div className="space-y-2">
+    <div className="bg-white rounded-xl shadow p-4 border flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
+      {/* Información del producto */}
+      <div className="flex-1 space-y-2">
         <h3 className="font-semibold text-lg">{name}</h3>
-        <div className="flex gap-2">
-          <span className={`px-2 py-1 text-xs rounded-md font-medium ${
+        
+        {/* Badges de estado y categoría */}
+        <div className="flex gap-2 flex-wrap">
+          <span className={`px-2 py-1 text-xs rounded-md font-medium transition-colors ${
             status === "Activo"
-              ? "bg-black text-white"
+              ? "bg-green-600 text-white"
               : "bg-gray-200 text-gray-700"
           }`}>
             {status}
           </span>
-          <span className="px-2 py-1 text-xs rounded-md border">{category}</span>
+          <span className="px-2 py-1 text-xs rounded-md border bg-blue-50 text-blue-700">
+            {category}
+          </span>
         </div>
-        <p className="text-green-600 font-semibold">${price.toFixed(2)}</p>
-        <p className="text-sm text-gray-500">
-          Creado en: • {date}
-        </p>
+        
+        {/* Precio y fecha */}
+        <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
+          <p className="text-green-600 font-semibold text-lg">
+            ${price.toFixed(2)}
+          </p>
+          <p className="text-sm text-gray-500">
+            Creado: {formatDate(date)}
+          </p>
+        </div>
       </div>
 
-      {/* Actions */}
+      {/* Botones de acción */}
       <div className="flex gap-2 justify-end">
+        {/* Botón editar */}
         <button
           onClick={handleEdit}
-          className="p-2 rounded-md bg-gray-100 hover:bg-gray-200"
+          className="p-2 rounded-md bg-blue-50 text-blue-600 hover:bg-blue-100 transition-colors"
+          aria-label={`Editar ${name}`}
+          title="Editar producto"
         >
           <Edit size={18} />
         </button>
+        
+        {/* Botón toggle estado */}
         <button
           onClick={handleToggle}
-          className="px-3 py-1 rounded-md bg-gray-100 hover:bg-gray-200"
+          className="px-3 py-2 text-sm rounded-md bg-gray-100 hover:bg-gray-200 transition-colors disabled:opacity-50"
+          disabled={isToggling}
+          aria-label={status === "Activo" ? "Desactivar" : "Activar"}
         >
-          {status === "Activo" ? "Desactivar" : "Activar"}
+          {isToggling 
+            ? "..." 
+            : (status === "Activo" ? "Desactivar" : "Activar")
+          }
         </button>
+        
+        {/* Botón eliminar */}
         <button
           onClick={handleDelete}
-          className="p-2 rounded-md bg-red-600 text-white hover:bg-red-700"
+          className="p-2 rounded-md bg-red-600 text-white hover:bg-red-700 transition-colors disabled:opacity-50"
+          disabled={isDeleting}
+          aria-label={`Eliminar ${name}`}
+          title="Eliminar producto"
         >
           <Trash2 size={18} />
         </button>
@@ -79,3 +208,4 @@ export function ProductCard({
     </div>
   )
 }
+
