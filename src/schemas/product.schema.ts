@@ -39,7 +39,7 @@ const ProductBaseSchema = z.object({
     }),
   
   status: z.enum(["Activo", "Inactivo"], {
-    errorMap: () => ({ message: "El estado debe ser 'Activo' o 'Inactivo'" })
+    message: "El estado debe ser 'Activo' o 'Inactivo'"
   }).default("Activo"),
 });
 

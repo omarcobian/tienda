@@ -89,8 +89,8 @@ export class InternalError extends AppError {
  * Formatea errores de Zod para respuestas amigables
  * Convierte errores de validación en formato legible
  */
-export function formatZodError(error: ZodError): string[] {
-  return error.errors.map(err => {
+export function formatZodError(error: ZodError<unknown>): string[] {
+  return error.issues.map(err => {
     const path = err.path.join('.');
     return path ? `${path}: ${err.message}` : err.message;
   });

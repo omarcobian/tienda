@@ -50,14 +50,13 @@ export const RegisterUserSchema = z.object({
   
   password: z.string()
     .min(8, "La contraseña debe tener al menos 8 caracteres")
-    .max(100, "La contraseña no puede exceder 100 caracteres")
+    .max(100, "La contraseña no puede exceder 100 caracteres"),
     // Mejora futura: añadir validación de complejidad
     // .regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]/, 
     //   "La contraseña debe contener mayúsculas, minúsculas, números y símbolos"),
-  ,
   
   roll: z.enum(["USER", "ADMIN"], {
-    errorMap: () => ({ message: "El rol debe ser 'USER' o 'ADMIN'" })
+    message: "El rol debe ser 'USER' o 'ADMIN'"
   }).default("USER"),
 });
 
