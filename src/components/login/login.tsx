@@ -1,113 +1,223 @@
-//espesificamos que se ejetute del lado del cliente para manejar el estado con useState
+/**
+ * Login Component - Formulario de autenticación
+ * 
+ * Arquitectura aplicada:
+ * - ✅ Componente cliente con manejo de estado
+ * - ✅ Integración con contexto de autenticación
+ * - ✅ Validación de formulario
+ * - ✅ Feedback visual de estados (loading, error)
+ * - ✅ Redirección basada en rol de usuario
+ * 
+ * IMPORTANTE - Problemas de seguridad y arquitectura:
+ * ====================================================
+ * 
+ * 1. Doble autenticación (API + Mock):
+ *    - Se llama a /api/auth (backend con BD)
+ *    - Luego se usa login() del hook que tiene usuarios mock
+ *    - Esto causa inconsistencia y problemas de seguridad
+ * 
+ * 2. Usuarios mock en frontend:
+ *    - useAuth tiene usuarios hardcodeados
+ *    - No debería haber usuarios mock en producción
+ * 
+ * 3. Sin JWT/tokens:
+ *    - Solo se guarda en localStorage sin seguridad
+ *    - No hay expiración de sesión
+ *    - Vulnerable a XSS
+ * 
+ * Refactorización necesaria para producción:
+ * ==========================================
+ * 
+ * A. Eliminar usuarios mock de useAuth
+ * B. Implementar JWT en backend (/api/auth)
+ * C. Guardar token JWT en httpOnly cookie (más seguro que localStorage)
+ * D. Verificar token en cada request protegido
+ * E. Implementar refresh token para renovar sesión
+ * 
+ * @example Flujo correcto con JWT (futuro):
+ * ```typescript
+ * const handleLogin = async (e: React.FormEvent) => {
+ *   e.preventDefault()
+ *   setLoading(true)
+ *   
+ *   try {
+ *     const response = await fetch('/api/auth', {
+ *       method: 'POST',
+ *       headers: { 'Content-Type': 'application/json' },
+ *       body: JSON.stringify({ email, password })
+ *     })
+ *     
+ *     const data = await response.json()
+ *     
+ *     if (response.ok) {
+ *       // Token se guarda automáticamente en httpOnly cookie
+ *       // Actualizar contexto con datos de usuario
+ *       setUser(data.user)
+ *       router.push(data.user.role === 'ADMIN' ? '/dashboard/admin' : '/dashboard/user')
+ *     } else {
+ *       setError(data.error.message)
+ *     }
+ *   } catch (err) {
+ *     setError('Error de conexión')
+ *   } finally {
+ *     setLoading(false)
+ *   }
+ * }
+ * ```
+ */
+
 "use client"
-//importaciones de hooks y estado
+
 import { useState } from "react"
 import { useAuth } from "@hooks/useAuth";
 import { redirect } from "next/navigation";
 
-
-
 export default function Login() {
-  //estado para manejar la api y formularios
-  const { user, login, logout } = useAuth()
+  // Contexto de autenticación
+  const { user, login } = useAuth()
+  
+  // Estado del formulario
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [error, setError] = useState("")
   const [loading, setLoading] = useState(false)
-  const [api, setApi] = useState(false)
 
-  //funcion para manejar el login
+  /**
+   * Handler del login
+   * 
+   * PROBLEMA: Hay inconsistencia entre la API real y el mock
+   * - La API valida contra BD con contraseñas hasheadas
+   * - El hook useAuth valida contra usuarios mock
+   * 
+   * Solución temporal: Mantener ambos para compatibilidad
+   * Solución definitiva: Eliminar mock y usar solo API con JWT
+   */
   const handleLogin = async (e: React.FormEvent) => {
-    //no refrescar la pagina
     e.preventDefault()
-
-    //reinicia el estado de error y activa el estado de cargando
     setError("")
     setLoading(true)
 
-    //llama a la api del login
     try {
-      //fetch a la api del login
-      const success = await fetch("/api/auth", {
+      // 1. Validar contra API real (BD)
+      const response = await fetch("/api/auth", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({ email, password }),
       })
-      //si la api no responde correctamente con un error 401 
-      if (success.status === 401) {
-        setApi(false)
+
+      if (response.status === 401) {
         setError("Credenciales inválidas")
+        return
       }
-    // manejo de errores si la api responde con 500
-    } catch (err) {
+
+      if (!response.ok) {
+        setError("Error al iniciar sesión")
+        return
+      }
+
+      // 2. Si API es exitosa, actualizar contexto mock
+      // NOTA: Esto es temporal, en producción solo usar JWT
+      await login(email, password)
+      
+    } catch (error) {
+      console.error('Login error:', error)
       setError("Error al iniciar sesión")
     } finally {
-      //desactiva el estado de cargando y activa el estado de api
       setLoading(false)
-      setApi(true)
-      //guarda el email y password en el estado de auth que es global
-      await login(email,password)
     }
   }
-  //si el usuario esta autenticado redirige a la pagina de productos
+
+  /**
+   * Redirección basada en rol
+   * Si el usuario ya está autenticado, redirigir a su dashboard
+   */
   if (user) {
-    //redirige a la pagina dashboard/admin
-    return user.role === "admin" ? redirect("/dashboard/admin") : redirect("/dashboard/user")
+    return user.role === "admin" 
+      ? redirect("/dashboard/admin") 
+      : redirect("/dashboard/user")
   }
 
-  
-
   return (
-    <div >
-      <div className="w-full max-w-md bg-white mx-14 my-4 p-4 rounded-xl shadow-lg space-y-4">
+    <div className="w-full max-w-md">
+      <div className="bg-white mx-auto p-6 rounded-xl shadow-lg space-y-6">
+        {/* Header */}
         <div className="text-center">
           <h3 className="text-2xl font-bold text-gray-900">Sistema POS</h3>
-          <h5 className="text-sm text-gray-600">Ingresa tus credenciales para acceder al sistema</h5>
+          <p className="text-sm text-gray-600 mt-2">
+            Ingresa tus credenciales para acceder al sistema
+          </p>
         </div>
-        <div>
-          <form onSubmit={handleLogin} className="space-y-4 ">
-            <div className="space-y-2 flex flex-col">
-              <label htmlFor="email">Email</label>
-              <input
-                className="px-2 py-1 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-600"
-                id="email"
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="tu@email.com"
-                required
-              />
-            </div>
-            <div className="space-y-2 flex flex-col">
-              <label htmlFor="password">Contraseña</label>
-              <input
-                className="px-2 py-1 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-600"
-                id="password"
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="••••••••"
-                required
-              />
-            </div>
-            {error !=="" && (
-              <div>
-                <p>{error}</p>
-              </div>
-            )}
-            <button type="submit" className="w-full bg-black text-white py-2 rounded-md hover:opacity-80 transition duration-300" disabled={loading}>
-              {loading ? "Iniciando sesión..." : "Iniciar Sesión"}
-            </button>
-          </form>
-          <div className="mt-6 text-sm text-gray-600">
-            <p className="font-medium">Usuarios de prueba:</p>
-            <p>Admin: admin@pos.com / admin123</p>
-            <p>Empleado: empleado@pos.com / emp123</p>
+
+        {/* Formulario de login */}
+        <form onSubmit={handleLogin} className="space-y-4">
+          {/* Campo: Email */}
+          <div className="space-y-2">
+            <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+              Email
+            </label>
+            <input
+              className="w-full px-3 py-2 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent"
+              id="email"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="tu@email.com"
+              required
+              disabled={loading}
+            />
           </div>
-        </div>
+
+          {/* Campo: Contraseña */}
+          <div className="space-y-2">
+            <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+              Contraseña
+            </label>
+            <input
+              className="w-full px-3 py-2 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent"
+              id="password"
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="••••••••"
+              required
+              disabled={loading}
+            />
+          </div>
+
+          {/* Mensaje de error */}
+          {error && (
+            <div className="bg-red-50 border border-red-200 rounded-md p-3">
+              <p className="text-red-600 text-sm">{error}</p>
+            </div>
+          )}
+
+          {/* Botón de submit */}
+          <button 
+            type="submit" 
+            className="w-full bg-black text-white py-2 rounded-md hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed" 
+            disabled={loading}
+          >
+            {loading ? "Iniciando sesión..." : "Iniciar Sesión"}
+          </button>
+        </form>
+
+        {/* Usuarios de prueba - Solo para desarrollo */}
+        {process.env.NODE_ENV === 'development' && (
+          <div className="mt-6 pt-6 border-t border-gray-200">
+            <p className="text-xs text-gray-500 font-medium mb-2">Usuarios de prueba:</p>
+            <div className="space-y-1 text-xs text-gray-600">
+              <p>Admin: admin@pos.com / admin123</p>
+              <p>Empleado: empleado@pos.com / emp123</p>
+            </div>
+            <p className="text-xs text-orange-600 mt-2">
+              ⚠️ Estos usuarios están en el mock del frontend. En producción usar solo BD.
+            </p>
+          </div>
+        )}
       </div>
     </div>
   )
 }
+
