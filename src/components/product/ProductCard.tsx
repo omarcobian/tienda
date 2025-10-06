@@ -43,7 +43,7 @@ interface ProductCardProps {
  */
 export function ProductCard({ product }: ProductCardProps) {
   const { id, name, status, category, price, date } = product
-  const { updateProduct, deleteProduct } = useProducts()
+  const { updateProduct, deleteProduct , refreshProducts} = useProducts()
   const [isDeleting, setIsDeleting] = useState(false)
   const [isToggling, setIsToggling] = useState(false)
 
@@ -89,6 +89,7 @@ export function ProductCard({ product }: ProductCardProps) {
       console.error("Error deleting product:", error)
       alert("Error al eliminar el producto")
     } finally {
+      refreshProducts()
       setIsDeleting(false)
     }
   }
@@ -117,6 +118,7 @@ export function ProductCard({ product }: ProductCardProps) {
       console.error("Error toggling product:", error)
       alert("Error al cambiar el estado")
     } finally {
+      refreshProducts()
       setIsToggling(false)
     }
   }

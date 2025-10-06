@@ -14,7 +14,7 @@
  * - Implementar error tracking y analytics
  */
 
-import { ZodError } from 'zod';
+import { ZodError } from "zod";
 
 /**
  * Clase base para errores personalizados de la aplicación
