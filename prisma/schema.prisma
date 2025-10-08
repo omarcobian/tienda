@@ -1,19 +1,22 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
+// ============================================================
+// Prisma Schema - Sistema de Ventas con Productos Relacionados
+// ============================================================
 
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
+// Generador del cliente Prisma
 generator client {
   provider = "prisma-client-js"
   output   = "../generated/prisma"
 }
 
+// Fuente de datos (base de datos MongoDB)
 datasource db {
   provider = "mongodb"
   url      = env("DATABASE_URL")
 }
 
+// =======================
+// MODELOS PRINCIPALES
+// =======================
 
 model User {
   id        String  @id @default(auto()) @map("_id") @db.ObjectId
@@ -22,14 +25,47 @@ model User {
   password  String
 }
 
+// -----------------------
+
 model Product {
-  id        String  @id @default(auto()) @map("_id") @db.ObjectId
+  id        String           @id @default(auto()) @map("_id") @db.ObjectId
   name      String
-  status    Status  @default(Activo)
+  status    Status            @default(Activo)
   category  String
   price     Float
   date      String
+  ventas    VentaProducto[]   // Relación con ventas
 }
+
+// -----------------------
+
+model Venta {
+  id            String           @id @default(auto()) @map("_id") @db.ObjectId
+  ventaId       String           @unique
+  total         Float
+  paymentMethod PaymentMethod
+  date          DateTime
+  tip           Float
+  productos     VentaProducto[]  // Relación con productos vendidos
+}
+
+// -----------------------
+// Tabla intermedia (relación muchos a muchos)
+// -----------------------
+
+model VentaProducto {
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  venta        Venta    @relation(fields: [ventaId], references: [id])
+  ventaId      String   @db.ObjectId
+  producto     Product  @relation(fields: [productoId], references: [id])
+  productoId   String   @db.ObjectId
+  cantidad     Int
+  precioUnit   Float
+}
+
+// =======================
+// ENUMS
+// =======================
 
 enum Status {
   Activo
@@ -39,4 +75,16 @@ enum Status {
 enum Roll {
   USER
   ADMIN
+}
+
+enum PaymentMethod {
+  Efectivo
+  Tarjeta
+  Delivery
+}
+
+enum DeliveryStore {
+  Rappy
+  Didi
+  Uber
 }

@@ -33,11 +33,11 @@
 
 import { useState } from "react"
 import { ProductStats } from "./ProductStats"
-import { ProductList } from "./ProductList"
 import { NewProductModal } from "./NewProduct"
 import { useProducts } from "@/hooks/useProducts"
 import { stats } from "@/lib/constantes/index"
 import type { CreateProductDTO } from "@/types"
+import { ProductCard } from "./ProductCard"
 
 /**
  * Componente principal de gestión de productos
@@ -53,7 +53,9 @@ export default function ProductPage() {
     loading, 
     error, 
     createProduct,
-    clearError 
+    clearError,
+    deleteProduct,
+    updateProduct
   } = useProducts()
 
   /**
@@ -157,7 +159,16 @@ export default function ProductPage() {
             <p className="text-sm mt-2">Crea tu primer producto usando el botón &quot;Nuevo Producto&quot;</p>
           </div>
         ) : (
-          <ProductList products={products} />
+          <div className="space-y-4">
+              {products.map((product) => (
+                <ProductCard
+                  key={product.id} // Usar id único en lugar de index
+                  product={product}
+                  onDelete={deleteProduct}
+                  onUpdate={updateProduct}
+                />
+              ))}
+            </div>
         )}
       </div>
 

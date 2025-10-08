@@ -26,11 +26,12 @@
 
 import React, { useState } from "react"
 import { Edit, Trash2 } from "lucide-react"
-import { useProducts } from "@/hooks/useProducts"
-import type { ProductWithId } from "@/types"
+import type { CreateProductDTO, ProductWithId } from "@/types"
 
 interface ProductCardProps {
   product: ProductWithId
+  onDelete:  (id: string) => Promise<boolean>
+  onUpdate: (id: string, product: Partial<CreateProductDTO>) => Promise<ProductWithId | null>
 }
 
 /**
@@ -41,9 +42,8 @@ interface ProductCardProps {
  * - ProductCardActions (botones de acción)
  * - ProductCardBadges (badges de estado y categoría)
  */
-export function ProductCard({ product }: ProductCardProps) {
+export function ProductCard({ product, onDelete, onUpdate}: ProductCardProps) {
   const { id, name, status, category, price, date } = product
-  const { updateProduct, deleteProduct , refreshProducts} = useProducts()
   const [isDeleting, setIsDeleting] = useState(false)
   const [isToggling, setIsToggling] = useState(false)
 
@@ -74,7 +74,7 @@ export function ProductCard({ product }: ProductCardProps) {
     setIsDeleting(true)
     
     try {
-      const success = await deleteProduct(id)
+      const success = await onDelete(id)
       
       if (success) {
         /**
@@ -89,7 +89,7 @@ export function ProductCard({ product }: ProductCardProps) {
       console.error("Error deleting product:", error)
       alert("Error al eliminar el producto")
     } finally {
-      refreshProducts()
+      // Ya no necesitamos llamar a refreshProducts porque deleteProduct ya actualiza el estado
       setIsDeleting(false)
     }
   }
@@ -103,7 +103,7 @@ export function ProductCard({ product }: ProductCardProps) {
     setIsToggling(true)
     
     try {
-      const updated = await updateProduct(id, { status: newStatus })
+      const updated = await onUpdate(id, { status: newStatus })
       
       if (updated) {
         /**
@@ -118,7 +118,7 @@ export function ProductCard({ product }: ProductCardProps) {
       console.error("Error toggling product:", error)
       alert("Error al cambiar el estado")
     } finally {
-      refreshProducts()
+      // Ya no necesitamos llamar a refreshProducts porque updateProduct ya actualiza el estado
       setIsToggling(false)
     }
   }
