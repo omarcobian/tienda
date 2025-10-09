@@ -121,11 +121,10 @@ export default function ProductPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 min-h-screen rounded-xl bg-background border border-gray-200 shadow-sm p-6">
       {/* Header con título y botón de acción */}
-      <div className="flex justify-between items-center">
+      <div className="flex justify-between items-center p-2 rounded-xl bg-background border border-gray-200 shadow-sm ">
         <h2 className="text-xl font-semibold flex items-center gap-2">
-          <span className="text-blue-600">📦</span> 
           Gestión de Productos
         </h2>
         <button
@@ -141,7 +140,7 @@ export default function ProductPage() {
       <ProductStats stats={stats(products)} />
 
       {/* Lista de productos */}
-      <div className="bg-white p-4 rounded-xl shadow space-y-4">
+      <div className="bg-white min-h-screen p-4 rounded-xl shadow space-y-4">
         <h3 className="text-lg font-semibold">Lista de Productos</h3>
         
         {/* 

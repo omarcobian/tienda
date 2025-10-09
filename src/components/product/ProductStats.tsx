@@ -44,7 +44,7 @@ export function ProductStats({ stats }: ProductStatsProps) {
       {stats.map((stat, index) => (
         <div
           key={index}
-          className="bg-white rounded-xl shadow p-6 text-center border hover:shadow-md transition-shadow"
+          className="bg-white rounded-xl p-6 text-center border border-gray-200 shadow-sm hover:shadow-md transition-shadow "
         >
           <p className={`text-3xl font-bold mb-2 ${stat.color || "text-gray-900"}`}>
             {stat.value.toLocaleString()} {/* Formatear números con separadores */}

@@ -38,6 +38,7 @@ export type ProductWithId = {
   status: "Activo" | "Inactivo"
   category: string
   price: number
+  description: string
   date: string
 }
 

@@ -141,7 +141,7 @@ export function ProductCard({ product, onDelete, onUpdate}: ProductCardProps) {
   }
 
   return (
-    <div className="bg-white rounded-xl shadow p-4 border flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
+    <div className="bg-white rounded-xl p-4 border border-gray-200 shadow-sm flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
       {/* Información del producto */}
       <div className="flex-1 space-y-2">
         <h3 className="font-semibold text-lg">{name}</h3>

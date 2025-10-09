@@ -7,34 +7,25 @@ import { Button } from "@components/ui/Button"
 import { Badge } from "@components/ui/Badge"
 import { Search, Package } from "lucide-react"
 import { ScrollArea } from "@components/ui/Scroll-area"
+import { ProductWithId } from "@/types"
 
-interface Product {
-  id: string
-  name: string
-  description: string
-  price: number
-  category: string
-  active: boolean
-}
 
 interface ProductSelectionModalProps {
   open: boolean
   onOpenChange: (open: boolean) => void
-  products: Product[]
-  onSelectProduct: (product: Product) => void
+  products: ProductWithId[]
+  onSelectProduct: (product: ProductWithId) => void
 }
 
 export function ProductSelectionModal({ open, onOpenChange, products, onSelectProduct }: ProductSelectionModalProps) {
   const [searchQuery, setSearchQuery] = useState("")
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
 
-  // Get unique categories
   const categories = useMemo(() => {
     const cats = Array.from(new Set(products.map((p) => p.category)))
     return cats.sort()
   }, [products])
 
-  // Filter products based on search and category
   const filteredProducts = useMemo(() => {
     let filtered = products
 
@@ -52,7 +43,6 @@ export function ProductSelectionModal({ open, onOpenChange, products, onSelectPr
     return filtered
   }, [products, searchQuery, selectedCategory])
 
-  // Group filtered products by category
   const productsByCategory = useMemo(() => {
     return filteredProducts.reduce(
       (acc, product) => {
@@ -62,11 +52,11 @@ export function ProductSelectionModal({ open, onOpenChange, products, onSelectPr
         acc[product.category].push(product)
         return acc
       },
-      {} as Record<string, Product[]>,
+      {} as Record<string, ProductWithId[]>,
     )
   }, [filteredProducts])
 
-  const handleSelectProduct = (product: Product) => {
+  const handleSelectProduct = (product: ProductWithId) => {
     onSelectProduct(product)
     onOpenChange(false)
     setSearchQuery("")
@@ -84,7 +74,6 @@ export function ProductSelectionModal({ open, onOpenChange, products, onSelectPr
         </DialogHeader>
 
         <div className="space-y-4">
-          {/* Search Bar */}
           <div className="relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
             <Input
@@ -95,28 +84,29 @@ export function ProductSelectionModal({ open, onOpenChange, products, onSelectPr
             />
           </div>
 
-          {/* Category Filter */}
           <div className="flex flex-wrap gap-2">
             <Button
               variant={selectedCategory === null ? "default" : "outline"}
               size="sm"
               onClick={() => setSelectedCategory(null)}
             >
-              Todas
+              Todas ({products.length})
             </Button>
-            {categories.map((category) => (
-              <Button
-                key={category}
-                variant={selectedCategory === category ? "default" : "outline"}
-                size="sm"
-                onClick={() => setSelectedCategory(category)}
-              >
-                {category}
-              </Button>
-            ))}
+            {categories.map((category) => {
+              const count = products.filter((p) => p.category === category).length
+              return (
+                <Button
+                  key={category}
+                  variant={selectedCategory === category ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setSelectedCategory(category)}
+                >
+                  {category} ({count})
+                </Button>
+              )
+            })}
           </div>
 
-          {/* Products Grid */}
           <ScrollArea className="h-[450px] pr-4">
             {Object.keys(productsByCategory).length === 0 ? (
               <div className="text-center py-12 text-gray-500">
@@ -127,7 +117,7 @@ export function ProductSelectionModal({ open, onOpenChange, products, onSelectPr
               <div className="space-y-6">
                 {Object.entries(productsByCategory).map(([category, categoryProducts]) => (
                   <div key={category}>
-                    <h3 className="font-semibold text-sm text-gray-700 mb-3 sticky top-0 bg-white py-2 border-b">
+                    <h3 className="font-semibold text-sm text-gray-700 mb-3 sticky top-0 bg-white py-2 border-b z-10">
                       {category}
                     </h3>
                     <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
@@ -135,11 +125,11 @@ export function ProductSelectionModal({ open, onOpenChange, products, onSelectPr
                         <button
                           key={product.id}
                           onClick={() => handleSelectProduct(product)}
-                          className="text-left p-4 border rounded-lg hover:border-blue-500 hover:bg-blue-50 transition-all group"
+                          className="group border rounded-lg hover:border-blue-500 hover:shadow-md transition-all text-left p-4 hover:bg-blue-50"
                         >
                           <div className="space-y-2">
                             <div className="flex items-start justify-between gap-2">
-                              <h4 className="font-medium text-sm leading-tight group-hover:text-blue-600">
+                              <h4 className="font-medium text-sm leading-tight group-hover:text-blue-600 transition-colors">
                                 {product.name}
                               </h4>
                             </div>
